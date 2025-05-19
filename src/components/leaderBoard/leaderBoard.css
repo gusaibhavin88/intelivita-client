@@ -1,0 +1,121 @@
+/* Base Styles */
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  padding: 20px;
+}
+
+.leaderboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.recalculate-btn,
+.filter-btn {
+  background-color: #d3d3d3;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.recalculate-btn {
+  align-self: center;
+}
+
+.filter-search {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Filter Section */
+.filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-controls input {
+  background-color: #000;
+  border: 2px solid #333;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  width: 150px;
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dropdown-label {
+  font-weight: 500;
+}
+
+.filter-options {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-option {
+  background-color: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.filter-option.active {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Table */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 15px;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.user-row {
+  background: linear-gradient(90deg, #1c1c1c, #1a1a1a);
+  border-radius: 15px;
+  margin-bottom: 10px;
+  display: table-row;
+}
+
+.user-row td {
+  border-bottom: 1px solid #2b2b2b;
+}
+
+.user-row.highlight {
+  border: 2px solid #fff;
+}
+
+.filter-options {
+  border: 2px solid #fff;
+  margin-top: 10px;
+  border-radius: 4px;
+}
