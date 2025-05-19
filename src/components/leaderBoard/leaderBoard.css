@@ -119,3 +119,17 @@ body {
   margin-top: 10px;
   border-radius: 4px;
 }
+.load-more-btn {
+  margin: 20px auto;
+  display: block;
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.load-more-btn:hover {
+  background-color: #2563eb;
+}

@@ -1,41 +1,57 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./leaderBoard.css";
-import axios from "axios"; // assuming you use axios for API calls
+import axios from "axios";
+
+const LIMIT = 5;
 
 const LeaderBoard = () => {
   const [users, setUsers] = useState([]);
+  const [refreshData, setRefreshData] = useState(false);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [userIdFilter, setUserIdFilter] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
   const debounceTimeout = useRef(null);
 
+  const fetchData = async (reset = false) => {
+    try {
+      const currentOffset = reset ? 0 : offset;
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/api/v1/activity/leaderboard?limit=${LIMIT}&offset=${currentOffset}&filter=${activeFilter}&search=${userIdFilter}`
+      );
+      const data = response?.data?.data?.data || [];
+
+      if (reset) {
+        setUsers(data);
+        setFilteredUsers(data);
+        setOffset(LIMIT);
+      } else {
+        const updatedUsers = [...users, ...data];
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        setOffset(currentOffset + LIMIT);
+      }
+
+      // Disable "Load More" if fewer results returned than limit
+      if (data.length < LIMIT) setHasMore(false);
+    } catch (error) {
+      console.error("Error fetching leaderboard data:", error);
+    }
+  };
+
   useEffect(() => {
-    // Clear previous timeout if filter changes before timeout ends
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
 
-    // Set new debounce timer
     debounceTimeout.current = setTimeout(() => {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(
-            `${
-              import.meta.env.VITE_BASE_URL
-            }/api/v1/activity/leaderboard?limit=10&offset=0&filter=${activeFilter}&search=${userIdFilter}`
-          );
-          const data = response?.data?.data?.data || [];
-          setUsers(data);
-          setFilteredUsers(data);
-        } catch (error) {
-          console.error("Error fetching leaderboard data:", error);
-        }
-      };
+      fetchData(true); // reset = true
+    }, 500);
 
-      fetchData();
-    }, 500); // 500ms debounce delay, adjust as needed
-
-    // Cleanup on unmount or before next effect run
     return () => clearTimeout(debounceTimeout.current);
-  }, [userIdFilter, activeFilter]);
+  }, [userIdFilter, activeFilter, refreshData]);
 
   const handleUserIdFilter = () => {
     const id = parseInt(userIdFilter);
@@ -49,22 +65,20 @@ const LeaderBoard = () => {
 
   const handleTimeFilter = (filter) => {
     setActiveFilter(filter);
-
-    // Example: you may want to call API with time filter or filter locally
-    // Here we're just simulating local filtering
-    const filtered = users.filter((user) => {
-      if (filter === "Day") return user.points >= 990;
-      if (filter === "Month") return user.points >= 995;
-      if (filter === "Year") return user.points >= 998;
-      return true;
-    });
-
-    setFilteredUsers(filtered);
   };
 
   return (
     <div className="leaderboard-container">
-      <button className="recalculate-btn">Recalculate</button>
+      <button
+        className="recalculate-btn"
+        onClick={() => {
+          setRefreshData(!refreshData);
+          setHasMore(true);
+          setOffset(0);
+        }}
+      >
+        Recalculate
+      </button>
 
       <div className="filter-controls">
         <div className="filter-search">
@@ -76,9 +90,6 @@ const LeaderBoard = () => {
             value={userIdFilter}
             onChange={(e) => setUserIdFilter(e.target.value)}
           />
-          <button className="filter-btn" onClick={handleUserIdFilter}>
-            Filter
-          </button>
         </div>
         <div className="filter-search">
           <div className="dropdown">
@@ -89,7 +100,11 @@ const LeaderBoard = () => {
                   className={`filter-option ${
                     activeFilter === option ? "active" : ""
                   }`}
-                  onClick={() => handleTimeFilter(option)}
+                  onClick={() => {
+                    setHasMore(true);
+                    setOffset(0);
+                    handleTimeFilter(option);
+                  }}
                 >
                   {option}
                 </button>
@@ -122,6 +137,12 @@ const LeaderBoard = () => {
           ))}
         </tbody>
       </table>
+
+      {hasMore && (
+        <button className="load-more-btn" onClick={() => fetchData(false)}>
+          Load More
+        </button>
+      )}
     </div>
   );
 };
